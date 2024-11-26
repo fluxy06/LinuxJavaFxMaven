@@ -469,7 +469,7 @@ public class Main extends Application {
         System.out.println(listNoNullValues); // Для отладки: выводим список непустых значений
 
         // Генерируем SQL-запрос
-        String sql = meth.generateSelectQuery("public.\"InformationOfUsers\"", listNoNullValues, dateCreated);
+        String sql = meth.generateSelectQuery("public.\"InformationOfUsers\"", listNoNullValues, dateCreated, "DateCreated");
         System.out.println(sql); // Для отладки: выводим запрос на экран
 
         // Выполняем запрос и получаем данные
@@ -555,7 +555,7 @@ public class Main extends Application {
         System.out.println(listNoNullValues2); // Для отладки: выводим список непустых значений
 
         // Генерируем SQL-запрос
-        String sql = meth.generateSelectQuery("public.\"TrafficAccidents\"", listNoNullValues2, dataCr);
+        String sql = meth.generateSelectQuery("public.\"TrafficAccidents\"", listNoNullValues2, dataCr, "DataAccident");
         System.out.println(sql); // Для отладки: выводим запрос на экран
 
         // Выполняем запрос и получаем данные
@@ -786,7 +786,7 @@ class StrinMethods {
     //#endregion
 
     //#region Метод генерации запроса на основе заполненных полей
-    public String generateSelectQuery(String tableName, Map<String, String> data, LocalDate dateCreated) {
+    public String generateSelectQuery(String tableName, Map<String, String> data, LocalDate dateField, String dateFieldName) {
         // Строим часть для столбцов и значений
         StringBuilder whereClause = new StringBuilder();
         boolean first = true;
@@ -800,11 +800,16 @@ class StrinMethods {
         }
 
         // Проверяем дату и добавляем её в запрос, если она не пустая
-        if (dateCreated != null) {
+        if (dateField != null) {
             if (whereClause.length() > 0) {
                 whereClause.append(" AND "); // Добавляем AND, если уже есть условия
             }
-            whereClause.append("\"DateCreated\" = '").append(dateCreated.toString()).append("'"); // Преобразуем дату в строку
+            whereClause.append("\"").append(dateFieldName).append("\" = '").append(dateField.toString()).append("'"); // Преобразуем дату в строку
+        }
+
+        // Если нет условий, возвращаем запрос без WHERE части
+        if (whereClause.length() == 0) {
+            return "SELECT * FROM " + tableName + ";";
         }
 
         // Возвращаем финальный SQL-запрос
